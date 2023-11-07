@@ -1,4 +1,4 @@
-# 21 MERN: Book Search Engine
+# Book Search Engine with MERN
 
  **A Google Books API search engine that allows users to save book searches to the back end;** 
  * Built using the MERN stack with a React front end, MongoDB database, and Node.js/Express.js server and API.
