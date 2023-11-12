@@ -1,61 +1,48 @@
+// typeDefs.js
+
 const { gql } = require('apollo-server-express');
 
 const typeDefs = gql`
-  type User {
-    _id: ID
-    username: String!
-    email: String!
-    savedBooks: [Book]
-    # You can define other user fields here
-  }
-
-  type Book {
-    authors: [String]
-    description: String!
-    bookId: String!
-    image: String
-    link: String
-    title: String!
-  }
-
-  input BookInput {
-    authors: [String]
-    description: String!
-    bookId: String!
-    image: String
-    link: String
-    title: String!
-  }
-
-  type AuthPayload {
-    token: String
-    user: User
-  }
-
   type Query {
-    getSingleUser(id: ID, username: String): User
-    # Add other query types here if needed
+    me(id: ID, username: String): User
   }
 
   type Mutation {
-    createUser(input: CreateUserInput!): AuthPayload
-    loginUser(input: LoginInput!): AuthPayload
+    login(email: String!, password: String!): Auth
+    addUser(username: String!, email: String!, password: String!): Auth
     saveBook(bookInput: BookInput!): User
-    deleteBook(bookId: String!): User
-    # Add other mutation types here if needed
+    removeBook(bookId: String!): User
   }
 
-  input CreateUserInput {
-    username: String!
-    email: String!
-    password: String!
-    # Add other user input fields here
-  }
-
-  input LoginInput {
+  type User {
+    _id: ID
     username: String
     email: String
-    password: String!
+    bookCount: Int
+    savedBooks: [Book]
+  }
+
+  type Book {
+    bookId: String
+    authors: [String]
+    description: String
+    title: String
+    image: String
+    link: String
+  }
+
+  input BookInput {
+    bookId: String
+    authors: [String]
+    description: String
+    title: String
+    image: String
+    link: String
+  }
+
+  type Auth {
+    token: String
+    user: User
   }
 `;
 

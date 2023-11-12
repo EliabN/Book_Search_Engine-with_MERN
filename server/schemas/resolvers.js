@@ -3,8 +3,7 @@ const { signToken } = require('../utils/auth');
 
 const resolvers = {
   Query: {
-    // Fetch a single user by ID or username
-    getSingleUser: async (_, { id, username }, { res }) => {
+    me: async (_, { id, username }, { res }) => {
       try {
         const foundUser = await User.findOne({
           $or: [{ _id: id }, { username: username }],
@@ -22,34 +21,15 @@ const resolvers = {
     },
   },
   Mutation: {
-    // Create a new user, sign a token, and return token with user details
-    createUser: async (_, { input }, { res }) => {
+    login: async (_, { email, password }, { res }) => {
       try {
-        const user = await User.create(input);
-
-        if (!user) {
-          throw new Error('Something is wrong with user creation!');
-        }
-
-        const token = signToken(user);
-        return { token, user };
-      } catch (err) {
-        res.status(400).json({ message: err.message });
-        return null;
-      }
-    },
-    // Login a user, sign a token, and return token with user details
-    loginUser: async (_, { input }, { res }) => {
-      try {
-        const user = await User.findOne({
-          $or: [{ username: input.username }, { email: input.email }],
-        });
+        const user = await User.findOne({ email });
 
         if (!user) {
           throw new Error("Can't find this user!");
         }
 
-        const correctPw = await user.isCorrectPassword(input.password);
+        const correctPw = await user.isCorrectPassword(password);
 
         if (!correctPw) {
           throw new Error('Wrong password!');
@@ -62,7 +42,21 @@ const resolvers = {
         return null;
       }
     },
-    // Save a book to a user's `savedBooks`
+    addUser: async (_, { username, email, password }, { res }) => {
+      try {
+        const user = await User.create({ username, email, password });
+
+        if (!user) {
+          throw new Error('Something is wrong with user creation!');
+        }
+
+        const token = signToken(user);
+        return { token, user };
+      } catch (err) {
+        res.status(400).json({ message: err.message });
+        return null;
+      }
+    },
     saveBook: async (_, { bookInput }, { user, res }) => {
       try {
         const updatedUser = await User.findOneAndUpdate(
@@ -77,8 +71,7 @@ const resolvers = {
         return null;
       }
     },
-    // Remove a book from `savedBooks`
-    deleteBook: async (_, { bookId }, { user, res }) => {
+    removeBook: async (_, { bookId }, { user, res }) => {
       try {
         const updatedUser = await User.findOneAndUpdate(
           { _id: user._id },
