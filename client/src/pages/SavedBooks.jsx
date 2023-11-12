@@ -1,3 +1,4 @@
+import { useState } from 'react';
 import { Container, Card, Button, Row, Col } from 'react-bootstrap';
 // Import useMutation and useQuery
 import { useQuery, useMutation } from '@apollo/client';
@@ -13,6 +14,9 @@ const SavedBooks = () => {
 
   // Use useMutation for the REMOVE_BOOK mutation
   const [removeBook] = useMutation(REMOVE_BOOK);
+
+  // Set initial state for userData
+  const [userData, setUserData] = useState({});
 
   const handleDeleteBook = async (bookId) => {
     const token = Auth.loggedIn() ? Auth.getToken() : null;
@@ -44,7 +48,8 @@ const SavedBooks = () => {
     return <div>Error loading data</div>;
   }
 
-  const userData = data.me;
+  // Set userData from the useQuery response
+  setUserData(data.me);
 
   return (
     <>
