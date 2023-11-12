@@ -45,7 +45,7 @@ const SearchBooks = () => {
 
   return (
     <>
-      {/* Your JSX for styling and search form */}
+      {/* JSX for styling and search form */}
       <div className="text-light bg-dark p-5">
         <Container>
           <h1>Search for Books!</h1>
