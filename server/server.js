@@ -1,38 +1,47 @@
 const express = require('express');
 const { ApolloServer } = require('apollo-server-express');
-const { expressMiddleware } = require('@apollo/server/express4');
+// Import Apollo Server Express middleware
+const { expressMiddleware } = require('@apollo/server/express4');  
 const path = require('path');
 
-const { typeDefs, resolvers } = require('./schemas');
-const db = require('./config/connection');
-const { authMiddleware } = require('./utils/auth');
+// Import GraphQL type definitions and resolvers
+const { typeDefs, resolvers } = require('./schemas');  
+// Import database connection
+const db = require('./config/connection');  
+// Import authentication middleware
+const { authMiddleware } = require('./utils/auth');  
 
-const PORT = process.env.PORT || 3001;
-const app = express();
+// Set the PORT for the server @3001
+const PORT = process.env.PORT || 3001;  
+// Create an Express application - app
+const app = express(); 
+
 const server = new ApolloServer({
   typeDefs,
   resolvers,
-  context: authMiddleware,
+  // Set authentication middleware for Apollo Server context
+  context: authMiddleware,  
 });
 
 app.use(express.urlencoded({ extended: true }));
 app.use(express.json());
 
-
-// if we're in production, serve client/dist as static assets
+// Serve client/dist as static assets in production
 if (process.env.NODE_ENV === 'production') {
   app.use(express.static(path.join(__dirname, '../client/dist')));
 
+  // Send index.html for all routes in production
   app.get('*', (req, res) => {
     res.sendFile(path.join(__dirname, '../client/dist/index.html'));
   });
 }
 
-
 const startApolloServer = async () => {
-  await server.start();
+  // Start Apollo Server
+  await server.start();  
 
-  server.applyMiddleware({ app })
+  // Apply Apollo Server middleware to Express app
+  server.applyMiddleware({ app })  
   db.once('open', () => {
     app.listen(PORT, () => {
       console.log(`API server running on port ${PORT}!`);
@@ -41,4 +50,5 @@ const startApolloServer = async () => {
   });
 };
 
-startApolloServer();
+// Start the Apollo Server
+startApolloServer();  
