@@ -38,15 +38,14 @@ const SignupForm = () => {
     }
 
     try {
-      // Execute the ADD_USER mutation
-      const { data } = await addUser({
-        variables: userFormData,
-      });
+      const response = await addUser(userFormData);
 
-      // Extract token and user data from the mutation response
-      const { token, user } = data.addUser;
+      if (!response.ok) {
+        throw new Error('something went wrong!');
+      }
 
-      // Log in the user
+      const { token, user } = await response.json();
+      console.log(user);
       Auth.login(token);
     } catch (err) {
       console.error(err);
