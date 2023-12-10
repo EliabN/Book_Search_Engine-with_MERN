@@ -44,11 +44,11 @@ const LoginForm = () => {
         variables: { ...userFormData },
       });
 
-      // if (!response.ok) {
-      //   throw new Error('something went wrong!');
-      // }
+      if (!response.ok) {
+        throw new Error('Please check email & password!');
+      }
 
-      const { token, user } = await data.loginUser;
+      const { token, user } = data.login;
 
       Auth.login(token);
       console.log(user);
