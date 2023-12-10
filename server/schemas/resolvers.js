@@ -3,59 +3,56 @@ const { signToken } = require('../utils/auth');
 
 const resolvers = {
   Query: {
-    me: async (parent, { id, username }, { user }) => {
-      console.log(user)
+    me: async (parent, { username }, context) => {
+      
       try {
-        if (user) {
-          const foundUser = await User.findOne({
-            //$or: [{ _id: id }, { username: username }],
-            _id: user._id
-          });
+        if (context.user) {
+          const user = await User.findOne({ _id: context.user._id });
 
-          console.log(foundUser)
-          return foundUser;
+          console.log(user)
+          return user;
         }
-
-        if (!foundUser) {
-          throw new Error('Cannot find a user with this ID or username!');
-        }
-        
-      } catch (err) {
-        console.log(err);
+        throw new Error("User not logged in!");
+      } catch (e) {
+        console.log(e);
       }
     },
   },
   Mutation: {
-    login: async (parent, { email, password }, { res }) => {
+    login: async (parent, { email, password }) => {
       try {
+        // Look up the user by the provided email address. Since the `email` field is unique, we know that only one person will exist with that email
         const user = await User.findOne({ email });
 
+        // If there is no user with that email address, return an Authentication error stating so
         if (!user) {
-          throw new Error("Can't find this user!");
+          throw AuthenticationError
         }
 
+        // If there is a user found, execute the `isCorrectPassword` instance method and check if the correct password was provided
         const correctPw = await user.isCorrectPassword(password);
 
+        // If the password is incorrect, return an Authentication error stating so
         if (!correctPw) {
-          throw new Error('Wrong password!');
+          throw AuthenticationError
         }
 
+        // If email and password are correct, sign user into the application with a JWT
         const token = signToken(user);
+
+        // Return an `Auth` object that consists of the signed token and user's information
         return { token, user };
       } catch (err) {
         console.log(err);
       }
     },
-    addUser: async (parent, { username, email, password }, { res }) => {
+    addUser: async (parent, { username, email, password }) => {
       try {
+        // First we create the user
         const user = await User.create({ username, email, password });
-
-        if (!user) {
-          throw new Error('Something is wrong with user creation!');
-        }
-        console.log(user)
-
+        // To reduce friction for the user, we immediately sign a JSON Web Token and log the user in after they are created
         const token = signToken(user);
+        // Return an `Auth` object that consists of the signed token and user's information
         return { token, user };
       } catch (err) {
         console.log(err);

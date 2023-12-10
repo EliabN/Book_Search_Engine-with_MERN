@@ -12,6 +12,7 @@ const SavedBooks = () => {
   // Use useQuery for fetching data
   const { loading, error, data } = useQuery(GET_ME);
 
+  console.log(data)
   // Use useMutation for the REMOVE_BOOK mutation
   const [removeBook] = useMutation(REMOVE_BOOK);
 
@@ -50,6 +51,7 @@ const SavedBooks = () => {
 
   // Set userData from the useQuery response
   setUserData(data.me);
+  console.log(userData)
 
   return (
     <>

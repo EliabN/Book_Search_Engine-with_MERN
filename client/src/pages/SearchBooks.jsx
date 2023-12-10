@@ -1,8 +1,7 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { Container, Col, Form, Button, Card, Row } from 'react-bootstrap';
 import Auth from '../utils/auth';
-
-// Import useMutation and useQuery
+import { searchGoogleBooks } from '../utils/API';
 import { useMutation } from '@apollo/client';
 import { SAVE_BOOK } from '../utils/mutations';
 
@@ -12,7 +11,6 @@ const SearchBooks = () => {
   // State to hold search input
   const [searchInput, setSearchInput] = useState('');
   // State to hold saved book IDs
-  // New state for savedBookIds
   const [savedBookIds, setSavedBookIds] = useState([]);
 
   // Use useMutation for the SAVE_BOOK mutation
@@ -31,10 +29,8 @@ const SearchBooks = () => {
       // Execute the mutation
       const { data } = await saveBook({
         // Pass the necessary variables to the mutation
-        variables: { input: bookToSave },
+        variables: { bookInput: bookToSave },
       });
-
-      // Check the response data if needed
 
       // Save the book ID to state
       setSavedBookIds([...savedBookIds, bookToSave.bookId]);
@@ -42,6 +38,48 @@ const SearchBooks = () => {
       console.error(err);
     }
   };
+
+  // Function to handle form submission
+  const handleFormSubmit = async (event) => {
+    event.preventDefault();
+
+    if (!searchInput) {
+      return false;
+    }
+
+    try {
+      const response = await searchGoogleBooks(searchInput);
+
+      if (!response.ok) {
+        throw new Error('something went wrong!');
+      }
+
+      const { items } = await response.json();
+
+      const bookData = items.map((book) => ({
+        bookId: book.id,
+        authors: book.volumeInfo.authors || ['No author to display'],
+        title: book.volumeInfo.title,
+        description: book.volumeInfo.description,
+        image: book.volumeInfo.imageLinks?.thumbnail || '',
+      }));
+
+      // Set the searchedBooks state with the fetched data
+      setSearchedBooks(bookData);
+      // Clear the search input
+      setSearchInput('');
+    } catch (err) {
+      console.error(err);
+    }
+  };
+
+  // useEffect to save savedBookIds to localStorage on component unmount
+  useEffect(() => {
+    return () => {
+      // Save the updated savedBookIds to localStorage
+      localStorage.setItem('savedBookIds', JSON.stringify(savedBookIds));
+    };
+  }, [savedBookIds]);
 
   return (
     <>
