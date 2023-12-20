@@ -44,14 +44,16 @@ const LoginForm = () => {
         variables: { ...userFormData },
       });
 
-      if (!response.ok) {
-        throw new Error('Please check email & password!');
+      console.log(data)
+
+      if (!data) {
+        throw new Error('Something went wrong!');
       }
 
       const { token, user } = data.login;
 
       Auth.login(token);
-      console.log(user);
+      //console.log(user);
     } catch (err) {
       console.error(err);
       setShowAlert(true);
@@ -67,7 +69,7 @@ const LoginForm = () => {
     <>
       <Form noValidate validated={validated} onSubmit={handleFormSubmit}>
         <Alert dismissible onClose={() => setShowAlert(false)} show={showAlert} variant='danger'>
-          Something went wrong with your login credentials!
+          Something went wrong; check login credentials!
         </Alert>
         <Form.Group className='mb-3'>
           <Form.Label htmlFor='email'>Email</Form.Label>
