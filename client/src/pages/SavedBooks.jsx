@@ -7,47 +7,64 @@ import Auth from '../utils/auth';
 import { removeBookId } from '../utils/localStorage';
 
 const SavedBooks = () => {
-  const { loading, error, data } = useQuery(GET_ME);
-
   const [removeBook] = useMutation(REMOVE_BOOK);
-  const [userData, setUserData] = useState({});
 
-  // Add a check for data and data.me
-  if (loading) {
-    return <h2>LOADING...</h2>;
-  }
+  const { loading, data } = useQuery(GET_ME);
 
-  if (error) {
-    console.error(error);
-    return <div>Error loading data</div>;
-  }
+  const userData = data?.me || {};
+  // use this to determine if `useEffect()` hook needs to run again
+  const userDataLength = Object.keys(userData).length;
+
+
+  // // Add a check for data and data.me
+  // if (loading) {
+  //   return <h2>LOADING...</h2>;
+  // }
+
+  // if (error) {
+  //   console.error(error);
+  //   return <div>Error loading data</div>;
+  // }
 
   // Check if data and data.me are defined
   if (!data || !data.me) {
     return <h2>No data available</h2>;
   }
+  else {
+    // Now you can safely access data.me
+    console.log(data);
 
-  // Now you can safely access data.me
-  console.log(data.me);
+  }
 
-  const handleDeleteBook = async (bookId) => {
-    const token = Auth.loggedIn() ? Auth.getToken() : null;
 
-    if (!token) {
-      return false;
-    }
 
-    try {
-      const { data: mutationData } = await removeBook({
-        variables: { bookId },
-      });
 
-      setUserData(mutationData.removeBook.user);
-      removeBookId(bookId);
-    } catch (err) {
-      console.error(err);
-    }
-  };
+
+  // const handleDeleteBook = async (bookId) => {
+  //   const token = Auth.loggedIn() ? Auth.getToken() : null;
+
+  //   if (!token) {
+  //     return false;
+  //   }
+
+  //   try {
+  //     const { data: mutationData } = await removeBook({
+  //       variables: { bookId, token },
+  //     });
+
+  //     setUserData(data.me);
+  //     console.log(data)
+  //     removeBookId(bookId);
+  //   } catch (err) {
+  //     console.error(err);
+  //   }
+  // };
+
+  console.log(userData.savedBooks)
+  // if data isn't here yet, say so
+  if (loading) {
+    return <div>Loading...</div>;
+  }
 
   return (
     <>
