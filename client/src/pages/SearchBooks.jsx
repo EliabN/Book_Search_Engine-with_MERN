@@ -16,6 +16,17 @@ const SearchBooks = () => {
   // Use useMutation for the SAVE_BOOK mutation
   const [saveBook, { error }] = useMutation(SAVE_BOOK);
 
+  // useEffect to set initial savedBookIds from localStorage and save them to state
+  useEffect(() => {
+    const storedBookIds = JSON.parse(localStorage.getItem('savedBookIds')) || [];
+    setSavedBookIds(storedBookIds);
+  }, []);
+
+  // useEffect to save savedBookIds to localStorage when component unmounts or when savedBookIds change
+  useEffect(() => {
+    localStorage.setItem('savedBookIds', JSON.stringify(savedBookIds));
+  }, [savedBookIds]);
+
   // Function to handle saving a book
   const handleSaveBook = async (bookId) => {
     const bookToSave = searchedBooks.find((book) => book.bookId === bookId);
@@ -72,14 +83,6 @@ const SearchBooks = () => {
       console.error(err);
     }
   };
-
-  // useEffect to save savedBookIds to localStorage on component unmount
-  useEffect(() => {
-    return () => {
-      // Save the updated savedBookIds to localStorage
-      localStorage.setItem('savedBookIds', JSON.stringify(savedBookIds));
-    };
-  }, [savedBookIds]);
 
   return (
     <>
