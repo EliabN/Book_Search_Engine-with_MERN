@@ -18,13 +18,13 @@ const SearchBooks = () => {
 
   // useEffect to set initial savedBookIds from localStorage and save them to state
   useEffect(() => {
-    const storedBookIds = JSON.parse(localStorage.getItem('savedBookIds')) || [];
+    const storedBookIds = JSON.parse(localStorage.getItem('saved_books')) || [];
     setSavedBookIds(storedBookIds);
   }, []);
 
   // useEffect to save savedBookIds to localStorage when component unmounts or when savedBookIds change
   useEffect(() => {
-    localStorage.setItem('savedBookIds', JSON.stringify(savedBookIds));
+    localStorage.setItem('saved_books', JSON.stringify(savedBookIds));
   }, [savedBookIds]);
 
   // Function to handle saving a book
