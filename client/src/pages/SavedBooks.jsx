@@ -5,71 +5,60 @@ import { GET_ME } from '../utils/queries';
 import { REMOVE_BOOK } from '../utils/mutations';
 import Auth from '../utils/auth';
 import { removeBookId } from '../utils/localStorage';
+// Clear the entire localStorage
+//localStorage.clear();
 
 const SavedBooks = () => {
   const [removeBook] = useMutation(REMOVE_BOOK);
 
-  const { loading, data } = useQuery(GET_ME);
+  const { loading, data, refetch } = useQuery(GET_ME);
 
   const userData = data?.me || {};
-  // use this to determine if `useEffect()` hook needs to run again
-  const userDataLength = Object.keys(userData).length;
+
+  const handleDeleteBook = async (bookId) => {
+    const token = Auth.loggedIn() ? Auth.getToken() : null;
+
+    if (!token) {
+      return false;
+    }
+
+    try {
+      const { data: mutationData } = await removeBook({
+        variables: { bookId, token },
+      });
+
+      // Check if there's an error in the mutation response
+      if (mutationData.removeBook.error) {
+        throw new Error('something went wrong!');
+      }
+
+      // Assuming 'updatedUser' is part of the response data
+      const updatedUser = data.me;
+
+      //setUserData(updatedUser);
+      console.log(updatedUser)
+      removeBookId(bookId);
+      console.log("test", bookId)
+      //data = refetch();
+    } catch (err) {
+      console.error(err);
+    }
+  };
 
 
-  // // Add a check for data and data.me
-  // if (loading) {
-  //   return <h2>LOADING...</h2>;
-  // }
-
-  // if (error) {
-  //   console.error(error);
-  //   return <div>Error loading data</div>;
-  // }
-
-  // Check if data and data.me are defined
-  if (!data || !data.me) {
-    return <h2>No data available</h2>;
-  }
-  else {
-    // Now you can safely access data.me
-    console.log(data);
-
-  }
-
-
-
-
-
-  // const handleDeleteBook = async (bookId) => {
-  //   const token = Auth.loggedIn() ? Auth.getToken() : null;
-
-  //   if (!token) {
-  //     return false;
-  //   }
-
-  //   try {
-  //     const { data: mutationData } = await removeBook({
-  //       variables: { bookId, token },
-  //     });
-
-  //     setUserData(data.me);
-  //     console.log(data)
-  //     removeBookId(bookId);
-  //   } catch (err) {
-  //     console.error(err);
-  //   }
-  // };
-
-  console.log(userData.savedBooks)
   // if data isn't here yet, say so
   if (loading) {
     return <div>Loading...</div>;
+  } else {
+    // Now you can safely access data.me
+    console.log(data);
+    console.log(userData.savedBooks)
   }
 
   return (
     <>
-      <div fluid className="text-light bg-dark p-5">
-        <Container>
+      <div className="text-light bg-dark p-5">
+        <Container fluid>
           <h1>Viewing saved books!</h1>
         </Container>
       </div>
